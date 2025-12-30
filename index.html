@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 Reading Manifesto</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Suppress Tailwind CDN warning for personal projects
+        tailwind.config = {
+            theme: {
+                extend: {}
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;600&display=swap');
+        
+        .font-display {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .sparkle {
+            animation: sparkle 2s ease-in-out infinite;
+        }
+        
+        @keyframes sparkle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        @keyframes firework {
+            0% { transform: translate(0, 0); opacity: 1; }
+            100% { transform: translate(var(--x), var(--y)); opacity: 0; }
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .firework {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            animation: firework 1s ease-out forwards;
+        }
+        
+        .float-particle {
+            position: absolute;
+            animation: float 3s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        .new-year-banner {
+            animation: fadeInDown 1s ease-out;
+        }
+        
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+        }
+        
+        input[type="range"]::-webkit-slider-track {
+            background: #374151;
+            height: 0.5rem;
+            border-radius: 0.5rem;
+        }
+        
+        input[type="range"]::-moz-range-track {
+            background: #374151;
+            height: 0.5rem;
+            border-radius: 0.5rem;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 1.5rem;
+            width: 1.5rem;
+            border-radius: 50%;
+            background: #FFD700;
+            cursor: pointer;
+            margin-top: -0.5rem;
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            height: 1.5rem;
+            width: 1.5rem;
+            border-radius: 50%;
+            background: #FFD700;
+            cursor: pointer;
+            border: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100">
+    <!-- Hero Section -->
+    <header class="relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-8 px-6">
+        <!-- Animated Background -->
+        <div class="absolute inset-0 opacity-20">
+            <div class="absolute top-5 left-10 w-24 h-24 bg-yellow-500 rounded-full blur-3xl sparkle"></div>
+            <div class="absolute top-5 right-10 w-28 h-28 bg-orange-500 rounded-full blur-3xl sparkle"></div>
+        </div>
+        
+        <!-- Floating Particles -->
+        <div id="particles" class="absolute inset-0 pointer-events-none"></div>
+        
+        <!-- Fireworks Container -->
+        <div id="fireworks" class="absolute inset-0 pointer-events-none"></div>
+        
+        <div class="max-w-6xl mx-auto relative z-10">
+            <!-- Compact New Year Banner with Reading Manifesto -->
+            <div class="new-year-banner flex flex-col sm:flex-row items-center justify-center gap-3 flex-wrap">
+                <div class="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-gray-900 px-6 py-3 rounded-full font-bold text-lg">
+                    🎊 Happy New Year 2026! 🎊
+                </div>
+                <div class="flex items-center gap-3">
+                    <i data-lucide="book-open" class="w-6 h-6 text-yellow-500"></i>
+                    <h1 class="font-display text-3xl text-yellow-500">Reading Manifesto</h1>
+                </div>
+                <div class="inline-flex items-center gap-2 bg-gray-800 px-4 py-2 rounded-full border border-yellow-500/30">
+                    <i data-lucide="target" class="w-4 h-4 text-yellow-500"></i>
+                    <span class="text-yellow-500 font-semibold text-sm" id="totalProgress">0% Complete</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Reading Shelf -->
+    <main class="max-w-6xl mx-auto px-6 py-8">
+        <div class="space-y-6" id="bookShelf">
+            <!-- Books will be dynamically inserted here -->
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 border-t border-gray-700 py-8 mt-8">
+        <div class="max-w-6xl mx-auto px-6 text-center">
+            <div class="flex justify-center items-center gap-3 mb-4">
+                <i data-lucide="linkedin" class="w-5 h-5 text-blue-400"></i>
+                <a href="https://www.linkedin.com/in/sumeetsk/" 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   class="text-blue-400 hover:text-blue-300 transition-colors font-semibold">
+                    Connect with me on LinkedIn
+                </a>
+            </div>
+            <p class="text-gray-400 text-sm">
+                © 2026 Reading Manifesto. Read more, achieve more.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Wait for all resources to load
+        window.addEventListener('load', function() {
+            // Initialize Lucide icons
+            lucide.createIcons();
+            
+            // New Year Animations
+            createFloatingParticles();
+            startFireworks();
+        
+        // =============================================================================
+        // EDIT YOUR READING PROGRESS HERE (0-100)
+        // 
+        // To update your reading progress on GitHub:
+        // 1. Click the pencil icon (Edit) on the GitHub page
+        // 2. Find this section near the top of the <script> tag
+        // 3. Change the numbers (0-100) for each book
+        // 4. Scroll down and click "Commit changes"
+        // 5. Your progress will update on the live page!
+        // 
+        // Example: "The Alignment Problem": 45  (means 45% complete)
+        // =============================================================================
+        const bookProgress = {
+            "The Alignment Problem": 10,
+            "Human Compatible": 40,
+            "Prediction Machines": 70,
+            "The Attention Merchants": 0,
+            "Weapons of Math Destruction": 0,
+            "Mindstorms": 0
+        };
+        // =============================================================================
+        
+        // Function to create floating particles
+        function createFloatingParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleSymbols = ['✨', '⭐', '🎊', '🎉', '💫', '🌟'];
+            
+            for (let i = 0; i < 8; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'float-particle text-xl';
+                particle.textContent = particleSymbols[Math.floor(Math.random() * particleSymbols.length)];
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 3 + 's';
+                particle.style.animationDuration = (3 + Math.random() * 2) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Function to create fireworks
+        function createFirework(x, y) {
+            const fireworksContainer = document.getElementById('fireworks');
+            const colors = ['#FFD700', '#FFA500', '#FF6347', '#FF1493', '#00CED1', '#9370DB'];
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const firework = document.createElement('div');
+                firework.className = 'firework';
+                firework.style.left = x + 'px';
+                firework.style.top = y + 'px';
+                firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                const angle = (Math.PI * 2 * i) / particleCount;
+                const velocity = 50 + Math.random() * 50;
+                firework.style.setProperty('--x', Math.cos(angle) * velocity + 'px');
+                firework.style.setProperty('--y', Math.sin(angle) * velocity + 'px');
+                
+                fireworksContainer.appendChild(firework);
+                
+                setTimeout(() => {
+                    firework.remove();
+                }, 1000);
+            }
+        }
+        
+        // Function to start periodic fireworks
+        function startFireworks() {
+            // Create initial fireworks
+            setTimeout(() => {
+                const header = document.querySelector('header');
+                const rect = header.getBoundingClientRect();
+                createFirework(rect.width * 0.2, rect.height * 0.5);
+            }, 500);
+            
+            setTimeout(() => {
+                const header = document.querySelector('header');
+                const rect = header.getBoundingClientRect();
+                createFirework(rect.width * 0.8, rect.height * 0.5);
+            }, 1000);
+            
+            // Periodic fireworks every 5 seconds
+            setInterval(() => {
+                const header = document.querySelector('header');
+                const rect = header.getBoundingClientRect();
+                const x = rect.width * (0.2 + Math.random() * 0.6);
+                const y = rect.height * 0.5;
+                createFirework(x, y);
+            }, 5000);
+        }
+
+        // 2026 Reading List (with progress loaded from bookProgress object above)
+        const booksData = [
+            { 
+                id: 1, 
+                title: "The Alignment Problem", 
+                author: "Brian Christian",
+                category: "AI Ethics", 
+                progress: bookProgress["The Alignment Problem"],
+                link: "https://www.amazon.com/Alignment-Problem-Machine-Learning-Values/dp/0393868338",
+                cover: "https://covers.openlibrary.org/b/isbn/9780393868333-L.jpg"
+            },
+            { 
+                id: 2, 
+                title: "Human Compatible", 
+                author: "Stuart Russell",
+                category: "AI Strategy", 
+                progress: bookProgress["Human Compatible"],
+                link: "https://www.amazon.com/Human-Compatible-Artificial-Intelligence-Problem/dp/0525558616",
+                cover: "https://covers.openlibrary.org/b/isbn/9780525558613-L.jpg"
+            },
+            { 
+                id: 3, 
+                title: "Prediction Machines", 
+                author: "Agrawal, Gans, Goldfarb",
+                category: "Business Strategy", 
+                progress: bookProgress["Prediction Machines"],
+                link: "https://www.amazon.com/Prediction-Machines-Economics-Artificial-Intelligence/dp/1633695670",
+                cover: "https://covers.openlibrary.org/b/isbn/9781633695672-L.jpg"
+            },
+            { 
+                id: 4, 
+                title: "The Attention Merchants", 
+                author: "Tim Wu",
+                category: "Platform Dynamics", 
+                progress: bookProgress["The Attention Merchants"],
+                link: "https://www.amazon.com/Attention-Merchants-Scramble-Inside-Heads/dp/0804170045",
+                cover: "https://covers.openlibrary.org/b/isbn/9780804170048-L.jpg"
+            },
+            { 
+                id: 5, 
+                title: "Weapons of Math Destruction", 
+                author: "Cathy O'Neil",
+                category: "Social Impact", 
+                progress: bookProgress["Weapons of Math Destruction"],
+                link: "https://www.amazon.com/Weapons-Math-Destruction-Increases-Inequality/dp/0553418815",
+                cover: "https://covers.openlibrary.org/b/isbn/9780553418811-L.jpg"
+            },
+            { 
+                id: 6, 
+                title: "Mindstorms", 
+                author: "Seymour Papert",
+                category: "Education", 
+                progress: bookProgress["Mindstorms"],
+                link: "https://www.amazon.com/Mindstorms-Children-Computers-Powerful-Ideas/dp/0465046746",
+                cover: "https://covers.openlibrary.org/b/isbn/9780465046744-L.jpg"
+            }
+        ];
+
+        // Function to get border color based on progress
+        function getBorderColor(progress) {
+            if (progress === 0) return 'border-gray-700';
+            if (progress < 25) return 'border-gray-600';
+            if (progress < 50) return 'border-orange-800';
+            if (progress < 75) return 'border-orange-600';
+            if (progress < 100) return 'border-yellow-600';
+            return 'border-yellow-500';
+        }
+
+        // Function to get category color
+        function getCategoryColor(category) {
+            const colors = {
+                'AI Strategy': 'bg-blue-900 text-blue-300',
+                'AI Ethics': 'bg-purple-900 text-purple-300',
+                'Business Strategy': 'bg-orange-900 text-orange-300',
+                'Platform Dynamics': 'bg-cyan-900 text-cyan-300',
+                'Social Impact': 'bg-green-900 text-green-300',
+                'Education': 'bg-pink-900 text-pink-300'
+            };
+            return colors[category] || 'bg-gray-700 text-gray-300';
+        }
+
+        // Function to trigger confetti (global scope for onclick)
+        window.celebrate = function() {
+            const duration = 3000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            const interval = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                const particleCount = 50 * (timeLeft / duration);
+
+                confetti({
+                    ...defaults,
+                    particleCount,
+                    origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+                    colors: ['#FFD700', '#FFA500', '#FF8C00']
+                });
+                confetti({
+                    ...defaults,
+                    particleCount,
+                    origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+                    colors: ['#FFD700', '#FFA500', '#FF8C00']
+                });
+            }, 250);
+        };
+
+        // Function to update total progress
+        function updateTotalProgress() {
+            const totalProgress = booksData.reduce((sum, book) => sum + book.progress, 0) / booksData.length;
+            document.getElementById('totalProgress').textContent = `${Math.round(totalProgress)}% Complete`;
+        }
+
+        // Function to render books
+        function renderBooks() {
+            const shelf = document.getElementById('bookShelf');
+            shelf.innerHTML = '';
+
+            booksData.forEach((book, index) => {
+                const borderColor = getBorderColor(book.progress);
+                const categoryColor = getCategoryColor(book.category);
+                const isComplete = book.progress === 100;
+
+                const bookItem = document.createElement('div');
+                bookItem.className = `bg-gray-800 rounded-lg p-6 border-l-4 ${borderColor} transition-all hover:shadow-lg hover:shadow-yellow-500/10`;
+                
+                bookItem.innerHTML = `
+                    <div class="flex flex-col gap-4">
+                        <!-- Top Row: Number, Cover, Title, and Category -->
+                        <div class="flex items-start gap-4">
+                            <div class="flex items-center gap-3 flex-shrink-0">
+                                <div class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-700 text-yellow-500 font-bold">
+                                    ${index + 1}
+                                </div>
+                                <img src="${book.cover}" 
+                                     alt="${book.title} cover" 
+                                     class="w-20 h-28 object-cover rounded shadow-lg border-2 border-gray-700 hover:border-yellow-500 transition-all"
+                                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22140%22%3E%3Crect width=%22100%22 height=%22140%22 fill=%22%23374151%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23FFD700%22 font-size=%2212%22%3ENo Cover%3C/text%3E%3C/svg%3E'"
+                                />
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <a href="${book.link}" target="_blank" rel="noopener noreferrer" 
+                                   class="group inline-block">
+                                    <h3 class="text-xl font-semibold group-hover:text-yellow-500 transition-colors inline-flex items-center gap-2 flex-wrap">
+                                        ${book.title}
+                                        <i data-lucide="external-link" class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                    </h3>
+                                </a>
+                                <p class="text-sm text-gray-400 mt-1 mb-2">${book.author}</p>
+                                <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold ${categoryColor}">
+                                    ${book.category}
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-2 text-sm font-semibold ${book.progress === 100 ? 'text-yellow-500' : 'text-gray-300'}">
+                                ${book.progress}%
+                                <i data-lucide="${isComplete ? 'check-circle' : 'circle-dashed'}" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- Progress Bar -->
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between text-xs text-gray-400">
+                                <span>Reading Progress</span>
+                                <span>${book.progress === 0 ? 'Not Started' : book.progress === 100 ? 'Completed!' : 'In Progress'}</span>
+                            </div>
+                            
+                            <!-- Visual Progress Bar -->
+                            <div class="relative h-3 bg-gray-700 rounded-full overflow-hidden">
+                                <div class="absolute top-0 left-0 h-full bg-gradient-to-r from-orange-500 to-yellow-500 transition-all duration-300 rounded-full"
+                                     style="width: ${book.progress}%">
+                                </div>
+                            </div>
+                            
+                            <!-- Interactive Slider -->
+                            <input 
+                                type="range" 
+                                min="0" 
+                                max="100" 
+                                value="${book.progress}" 
+                                class="w-full mt-2"
+                                data-book-id="${book.id}"
+                                oninput="updateProgress(${book.id}, this.value)"
+                                title="Drag to update progress"
+                            />
+                        </div>
+                        
+                        ${book.progress === 100 ? `
+                            <button 
+                                onclick="celebrate()"
+                                class="w-full bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-500 hover:to-orange-500 text-white font-semibold py-3 px-4 rounded-lg transition-all flex items-center justify-center gap-2"
+                            >
+                                <i data-lucide="party-popper" class="w-5 h-5"></i>
+                                Celebrate Completion!
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+                
+                shelf.appendChild(bookItem);
+            });
+
+            // Re-initialize Lucide icons for new elements
+            lucide.createIcons();
+        }
+
+        // Function to update progress (global scope for oninput)
+        window.updateProgress = function(bookId, value) {
+            const book = booksData.find(b => b.id === bookId);
+            if (book) {
+                book.progress = parseInt(value);
+                // Update the bookProgress object as well
+                bookProgress[book.title] = parseInt(value);
+                renderBooks();
+                updateTotalProgress();
+            }
+        };
+
+        // Initial render
+        renderBooks();
+        updateTotalProgress();
+        });
+    </script>
+</body>
+</html>
